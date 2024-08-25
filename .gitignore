@@ -2,3 +2,4 @@ data
 vars
 Theoretical
 *.pdf
+*/__pycache__

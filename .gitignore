@@ -1,5 +1,13 @@
 data
 vars
-Theoretical
-*.pdf
+# Theoretical
+*.log
+*.fls
+*.fdb_latexmk
+*.aux
+*.out
+# *.pdf
+*.synctex.gz
 */__pycache__
+
+*/articles

@@ -1,0 +1,195 @@
+\documentclass{article}
+\usepackage[margin=3cm]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{physics}
+\title{DL HW1}
+\author{Mehdi Jamalkhah}
+\date{July 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Partial Derivative}
+\begin{itemize}
+    \item 
+    \begin{equation*}
+        y_i = \sum_{k = 1}^{n} a_{ik} x_k  
+        \Rightarrow \pdv{y_i}{x_j} = a_{ij}
+        \Rightarrow \pdv{y}{x} = A
+    \end{equation*}
+    
+    \item 
+    \begin{equation*}
+        \pdv{y_i}{z_j} = \sum_{k=1}^{n} a_{ik} \pdv{x_k}{z_j} = (A \pdv{x}{z})_{ij}
+        \Rightarrow \pdv{y}{z} = A \pdv{x}{z}
+    \end{equation*}    
+    
+    \item 
+    \begin{align*}
+        &\alpha = \sum_{i = 1}^{m} \sum_{j = 1}^{n} y_i a_{ij} x_j \\
+        &\pdv{\alpha}{x_j} = \sum_{i = 1}^{m} y_i a_{ij} = (y^{T} A)_j
+        \Rightarrow \pdv{\alpha}{x} = y^T A \\
+        &\pdv{\alpha}{y_j} = \sum_{j = 1}^{n} a_{ij} x_j = (x^T A^T)_j
+        \Rightarrow \pdv{\alpha}{y} = x^T A
+    \end{align*}
+
+    \item 
+    \begin{align*}
+        &\alpha = \sum_{i} y_i x_i \\
+        &\pdv{\alpha}{z_j} = \sum_{i} x_i \pdv{y_i}{z_j} + y_i \pdv{x_i}{z_j} = (x^T \pdv{y}{z})_j + (y^T \pdv{x}{z})_j
+        \Rightarrow \pdv{\alpha}{z} = x^T \pdv{y}{z} + y^T \pdv{x}{z}
+    \end{align*}
+
+    \item 
+    \begin{align*}
+        &AA^{-1} = I 
+        \Rightarrow \pdv{A}{\alpha} A^{-1} + A\pdv{A^{-1}}{\alpha} = 0 \\
+        &\Rightarrow A\pdv{A^{-1}}{\alpha} = - \pdv{A}{\alpha} A^{-1} 
+        \Rightarrow \pdv{A^{-1}}{\alpha} = -A^{-1}\pdv{A}{\alpha} A^{-1}
+    \end{align*}
+\end{itemize}
+
+\section{Hessian Matrix}
+\begin{equation*}
+    \nabla \psi =
+    \begin{bmatrix}
+        \pdv{\psi}{u} \\
+        \pdv{\psi}{v} \\
+        \pdv{\psi}{z} 
+    \end{bmatrix}
+    \Rightarrow J = 
+    \begin{bmatrix}
+        \pdv[2]{\psi}{u}{u} & \pdv[2]{\psi}{v}{u} & \pdv[2]{\psi}{z}{u} \\
+        \pdv[2]{\psi}{u}{v} & \pdv[2]{\psi}{v}{v} & \pdv[2]{\psi}{z}{v} \\
+        \pdv[2]{\psi}{u}{z} & \pdv[2]{\psi}{v}{z} & \pdv[2]{\psi}{z}{z}
+    \end{bmatrix}
+    = H(y)
+\end{equation*}
+
+\section{Avoiding Becoming Asymmetric}
+Some images have a symmetry in their structure, like a symmetric face. 
+Now, if we use this knowledge and apply an inductive bias to our model
+to learn symmetric weights, it means that we need fewer parameters, 
+something like weight sharing.
+
+\begin{align*}
+    &R(w) = w^TSw = w_1^2s_{11} + w_2^2 s_{22} + w_1 w_2(s_{12} + s_{21}) \\
+    &w_1 \rightarrow w_2 \Rightarrow s_{12} + s_{21} + s_{22} + s_{11} = 0 \\
+    &e.g. \quad 
+    S = \begin{bmatrix}
+            1 \quad -1 \\
+            -1 \quad 1
+        \end{bmatrix}
+\end{align*}
+
+\section{Backpropagation Basics}
+\begin{itemize}
+    \item 
+    \begin{flalign*}
+        &W_1 \Rightarrow D_{a1} \times D_x   &b_1 \Rightarrow D_{a1} \times 1&&
+        &W_2 \Rightarrow 2 \times D_{a1}    &b_2 \Rightarrow 2 \times 1&&
+    \end{flalign*}
+
+    \item 
+    \begin{equation*}
+        \pdv{J}{\hat{y}^{(i)}} = -\frac{1}{m}\sum_{i=1}^{m} (\frac{y^{(i)}}{\hat{y}^{(i)}}
+        - \frac{1 - y^{(i)}}{1 - \hat{y}^{(i)}}) = \delta_1
+    \end{equation*}
+
+    \item 
+    \begin{equation*}
+        \pdv{\hat{y}^{(i)}}{z_2} = (1 - \sigma(z_2))\sigma(z_2) = \delta_2
+    \end{equation*}
+
+    \item 
+    \begin{equation*}
+        \pdv{z_2}{a_1} = W_2 = \delta_3
+    \end{equation*}
+
+    \item 
+    \begin{equation*}
+        \pdv{a_1}{z_1} = 
+        \begin{bmatrix}
+           I(z_11 > 0) & 0 & \dots & 0 \\
+           0     & I(z_12 > 0) & \dots & 0 \\
+           0 & 0 & \ddots  & 0 \\
+           0    & 0  &  \dots & I(z_1,D_{a1} > 0)
+        \end{bmatrix}
+        = \delta_4
+    \end{equation*}
+
+    \item 
+    \begin{equation*}
+        \pdv{z_1}{W_{1ij}} = [0 \quad \dots \quad 0 \quad x_j \quad 0 \quad \dots \quad 0]   
+    \end{equation*}
+
+    \item 
+    \begin{equation*}
+        \pdv{J}{W_1} = \delta_1 \delta_2 \delta_3 \delta_4 \delta_5
+    \end{equation*}
+\end{itemize}
+
+\section{Optimization}
+\subsection{Beale Function}
+\begin{itemize}
+\item 
+The Beale function is a convex function, as it is the sum of three 
+quadratic functions, and quadratic functions are inherently convex.
+
+Convex functions possess a unique global minimum, which means that 
+when optimizing a convex function, we can be confident of finding 
+the optimal solution by searching for the minimum value of the 
+function. This property makes optimization tasks more straightforward
+and reliable, especially when employing gradient descent techniques, 
+which may otherwise converge to a local minimum.
+
+\item 
+\begin{align*}
+    &\pdv{f}{x_1} = 2(1.5 - x_1 + x_1 x_2)(x_2 - 1) + 2(2.25 - x_1 + x_1x_2^2)(x_2^2 - 1)
+    +2(2.625 - x_1 + x_1x_2^3)(x_2^3 - 1) \\
+    &\pdv{f}{x_2} = 2(1.5 - x_1 + x_1x_2)x_1 + 2(2.25 - x_1 + x_1x_2^2)(2x_1x_2) +
+    2(2.65 - x_1 + x_1x_2^3)(3x_2^2x_1)\\
+    &\nabla f(x^t = (0, 1)) = (0, 0) \Rightarrow x^{t + 1} = (0, 1) 
+\end{align*}
+\end{itemize}
+
+\subsection{Quadratic Function}
+\begin{align*}
+    &h(x) = \frac{1}{2}x^TQx + x^Tc + b \Rightarrow \nabla_x h = Qx + c = Qx - Qx^* \\
+    &\text{update rule}: x^{k + 1} = x^k - \alpha Q(x - x^*) \\
+    &\text{eigen decomposition}: Q = V \Lambda V^{T} \\
+    &\text{change of basis}: \hat{x}^k = V^T(x^k - x^*) \Rightarrow x^k = V\hat{x}^k + x^*\\
+    &V\hat{x}^{k + 1} + x^* = V\hat{x}^k + x^* -\alpha Q(x - x^*) \\
+    &\hat{x}^{k + 1} = \hat{x}^k -\alpha V^T Q (VV^T)(x - x^*) \\
+    &= \hat{x}^k -\alpha  \Lambda \hat{x}^k =(1 - \alpha \Lambda)\hat{x}^k \\
+\end{align*}
+
+By recursion rule we have
+
+\begin{equation*}
+    \hat{x}_i^k = (1 - \alpha \lambda_i)^k\hat{x}_i^0
+\end{equation*}
+
+Moving back to our original space x, we can see that
+
+\begin{align*}
+    x^k - x^* = V\hat{x}^k = \sum_{i} \hat{x}_i^k v_i = \sum_{i} x_i^0 (1 - \alpha \lambda_i)^kv_i  
+\end{align*}
+
+\subsection{AdaMax}
+\begin{itemize}
+    \item 
+    \begin{equation*}
+        v^{(k)} = max(\beta_2v^{(k - 1)}, (1 - \beta_2)|\partial_W E^{(k)}|)
+    \end{equation*}
+
+    \item 
+    This technique can be useful in situations where 
+    the gradients are very sparse or have a high variance. It is 
+    also more robust to noisy data compared to Adam,
+    since it does not rely on the full history of past gradients.
+\end{itemize}
+
+\end{document}

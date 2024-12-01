@@ -1,0 +1,259 @@
+\documentclass{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{physics}
+\usepackage{float}
+\usepackage[colorlinks=true]{hyperref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\title{DL HW5}
+\author{Mehdi Jamalkhah}
+\date{October 2024}
+
+\newcommand*{\cat}[2]{
+    \begin{bmatrix}
+        #1 \\
+        #2
+        \end{bmatrix}
+}
+
+\newcommand*{\ex}[1]{
+    \mathbb{E}_{#1}
+}
+
+\begin{document}
+\maketitle
+
+
+\section{Contrastive Learning}
+\subsection{SimCLR, Moco, and BYOL}
+\subsubsection{}
+Initially, we proposed the idea that we could learn meaningful features 
+for our images by comparing an image with its augmentation. 
+To achieve this, we envisioned a model that takes an image and
+its augmentation as inputs and optimizes them to be close to each other.
+However, we encountered a significant issue: our model could potentially
+cheat by mapping all images to a single point. While this optimization 
+might appear successful, it ultimately fails to learn any useful features.
+
+To address this, we suggested maximizing the distance between each image 
+and other images, which is referred to as creating negative pairs.
+
+Another approach, as introduced in the BYOL paper, involves forcing 
+the model to map an image and its augmentation to distinct points. 
+Specifically, this method employs two submodels with the same architecture;
+however, only one of them is updated using gradients, while the other is 
+updated through a momentum average of the first. This strategy effectively
+prevents the collapse of the two images, because these models cannot have same
+weights.
+
+\subsubsection{}
+Training with large batch size may be unstable when using 
+standard SGD/Momentum with linear learning rate scaling. To
+stabilize the training, they use the LARS optimizer.
+
+In distributed training with
+data parallelism, the BN mean and variance are typically
+aggregated locally per device. In this contrastive learning,
+as positive pairs are computed in the same device, the model
+can exploit the local information leakage to improve prediction
+accuracy without improving representations. This paper address 
+this issue by aggregating BN mean and variance over
+all devices during the training. Other approaches include
+shuffling data examples across devices, or
+replacing BN with layer norm.
+
+\subsection{DINO}
+\subsubsection{}
+The DINO paper interpret the momentum teacher in DINO as a form pf Polyak-Ruppert averaging
+, with an exponentially decay. Polyak-Ruppert averaging is often used
+to simulate model ensembling to improve the performance
+of a network at the end of the training. This method can
+be interpreted as applying Polyak-Ruppert averaging during
+the training to constantly build a model ensembling that has
+superior performances. This model ensembling then guides
+the training of the student network.
+
+
+
+\subsubsection{}
+DINO discovering the semantic layout of scenes through multi-crop training.
+The teacher network needs to accurately detect objects to recognize specific 
+parts as belonging to those objects, effectively bringing them closer together 
+in the process.
+
+\subsubsection{}
+There are two forms of collapse: regardless of the input, the model output is uniform
+along all the dimensions or dominated by one dimension.
+
+DINO work with a centering and sharpening of
+the momentum teacher outputs to avoid model collapse. 
+The centering avoids the collapse induced by a dominant
+dimension, but encourages an uniform output. Sharpening
+induces the opposite effect. The paper shows this complementarity
+by decomposing the cross-entropy $H$ into an entropy $h$ and
+the Kullback-Leibler divergence (“KL”) $D_{KL}$:
+\begin{align*}
+    H(P_t, P_s) = h(P_t) + D_{KL}(P_t | P_s)
+\end{align*}
+\subsubsection{}
+\begin{itemize}
+    \item \textbf{Fast and memory-efficient attention.} They aim to configure the hyperparameters to
+    fully utilize the capacity of their GPU. For instance, 
+    they found out that the efficiency is best when the embedding dimension per head is a multiple of
+    64, and the matrix operations are even better when the full embedding dimension is a multiple of 256
+    \item \textbf{Sequence packing.} The DINO algorithm processes both large crops (224 resolution) and 
+    small crops (98 resolution), which are represented by token sequences of different lengths. 
+    To speed up training, a technique called "sequence packing" is employed, originating from NLP. 
+    This involves concatenating the sequences into a single long sequence, which is then passed through the transformer blocks. 
+    A block-diagonal mask in the self-attention layers ensures that attention is only applied within each sequence, 
+    maintaining equivalence to separate forward passes. This approach significantly improves computational efficiency compared to previous methods.
+    The lower-level components are available in the xFormers library.
+    \item \textbf{Fully-Sharded Data Parallel (FSDP).} In order to reduce the
+    memory footprint per GPU, they split the model replicas across GPUs. 
+    Consequently, the model size is not bounded by the memory of
+    a single GPU but by the total sum of GPU memory across compute nodes.
+\end{itemize}
+\subsubsection{}
+DINO takes its inspiration from 
+BYOL but operates with a different \textbf{similarity matching loss} 
+and uses \textbf{the exact same architecture} for the student and the
+teacher. That way, DINO completes the interpretation
+initiated in BYOL of self-supervised learning as a form of
+Mean Teacher self-distillation with no labels.
+
+
+
+\section{GNN}
+
+
+\subsection{}
+
+
+\subsubsection{}
+Yes.
+
+
+\subsubsection{}
+No, because each neighbor is multiplied by a different weight matrix. 
+Therefore, if the neighbors are permuted, the result will change,
+indicating that it is not invariant.
+
+
+\subsubsection{}
+Yes.
+
+
+\subsection{}
+At the $t+1$ level, we aim to construct $h^{(t+1)}$ using $h^{(t)}$. After applying a permutation on $H^{(t)}$, the node $v$ will be transformed into $v_p$.
+and the hidden state $h_v^{(t)}$ will transformed into $s_{v_p}^{(t)}$
+\begin{align*}
+    s_{v_p}^{(t+1)} 
+    &= \sigma\left(Ws_{v_p}^{(t)} + \sum_{u \in \mathcal{N}(v_p)} W's_{u}^{(t)}\right) \\
+    &= \sigma\left(Wh_{v}^{(t)} + \sum_{u \in \mathcal{N}(v)} W'h_{u}^{(t)}\right) \\
+    &= h_{v}^{(t+1)}
+\end{align*}
+By inductive proof, this process occurs for all layers. The permutation of inputs will result
+in a corresponding permutation of outputs, leading to the following conclusion:
+\begin{align*}
+   PH^{(t + 1)} = H_P^{(t + 1)}
+\end{align*}
+
+
+
+\section{Universal Adversarial Perturbations}
+
+
+\subsection{}
+Let $\mu$ denote a distribution of images in $\mathcal{R}^d$ , and
+$\hat{k}$ define a classification function that outputs for each image 
+$x \in \mathcal{R}^d$ an estimated label $\hat{k}(x)$. The main focus of universal 
+adversarial perturbations is to seek perturbation vectors $v \in \mathcal{R}^d$ that fool the
+classifier $\hat{k}$ on almost all datapoints sampled from $\mu$. That
+is, it seek a vector v such that:
+\begin{align*}
+    \hat{k}(x + v) \neq \hat{k}(x) \text{ for "most" } x \sim \mu
+\end{align*}
+
+
+\subsection{}
+The existence of these perturbations is problematic
+when the classifier is deployed in real-world (and possibly hostile)
+environments, as they can be exploited by adversaries to break the classifier.
+
+By identifying vulnerabilities in the model,
+we can enhance its robustness against such weaknesses.
+\subsection{}
+\begin{align*}
+    &\underset{v}{\text{argmax }} \frac{1}{n} \sum_{i=1}^n g(x_i + v) \\
+    &\text{s.t. } ||v||_p < \epsilon
+\end{align*}
+
+
+\section{VLM}
+
+\subsection{CLIP vs. SimVLM vs. CoCa}
+\textbf{Similarities:}
+\begin{enumerate}
+    \item 
+    All three architectures are Vision-Language Models (VLMs), 
+    aiming to establish a shared embedding space for both text and images (though not exactly in SimVLM).
+    \item
+    Each model includes an image encoder.
+\end{enumerate} 
+\newpage
+\noindent \textbf{Dissimilarities:}
+\begin{enumerate}
+    \item 
+    CLIP is limited to retrieval tasks, whereas SimCLR and CoCa include a text decoder, enabling them to generate captions.
+    \item
+    SimCLR is capable of performing Visual Question Answering (VQA) tasks, while CLIP and CoCa do not support this functionality.
+\end{enumerate}
+
+
+\subsection{CLIP}
+
+
+\subsubsection{}
+\begin{itemize}
+    \item \textbf{Image Encoder.} It encodes the image into a vector of features. 
+    The original paper explores two architectures for this component: ResNet and 
+    Vision Transformer (ViT).
+    \item \textbf{Text Encoder.} It encodes the text into a vector of features. 
+    The text encoder is a Transformer 
+    . As a base size CLIP use a 12-layer 512-wide
+    model with 8 attention heads. The transformer operates on a
+    lower-cased byte pair encoding (BPE) representation of the
+    text.
+    \item \textbf{Projection Head.} It's a linear projection to map from
+    each encoder's representation to the multi-modal embedding space.
+\end{itemize}
+
+
+\subsubsection{}
+\begin{align*}
+    \mathcal{L}_1 = -\frac{1}{N} \log \frac{e^{s_{ii}}}{\sum_j e^{s_{ij}}}
+    = -\frac{1}{N}\left[s_{ii} - \log \sum_j e^{s_{ij}}\right]
+\end{align*}
+where, 
+\begin{align*}
+    s_{ij} = \frac{x_i.y_j }{\tau \lVert x_i \rVert \lVert y_j \rVert} 
+\end{align*}
+So, 
+\begin{align*}
+    \pdv{\mathcal{L}_1}{x_i} = -\frac{1}{N} \left[ \pdv{s_{ii}}{x_i} 
+    - \frac{\sum_j e^{s_{ij}} (\pdv{s_{ij}}{x_i})}{\sum_j e^{s_{ij}}}\right]
+\end{align*}
+where, 
+\begin{align*}
+    \pdv{s_{ij}}{x_i} 
+    &= \frac{y_j \tau \lVert x_i\rVert \lVert y_j \rVert 
+            - \tau \frac{x_i}{\lVert x_i \rVert} \lVert y_j\rVert (x_i . y_j)}
+            {\tau^2 \lVert x_i\rVert ^ 2 \lVert y_j\rVert^2} \\
+    &= \frac{1}{\tau \lVert x_i\rVert \lVert y_j\rVert} \left(y_j 
+    - \frac{(x_i . y_j)}{\lVert x_i\rVert^2} x_i \right)
+\end{align*}
+\end{document}

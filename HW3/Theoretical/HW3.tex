@@ -1,0 +1,384 @@
+\documentclass{article}
+\usepackage[margin=3cm]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{physics}
+\usepackage{float}
+\usepackage[colorlinks=true]{hyperref}
+
+\title{DL HW3}
+\author{Mehdi Jamalkhah}
+\date{August 2024}
+
+\newcommand*{\cat}[2]{
+    \begin{bmatrix}
+        #1 \\
+        #2
+        \end{bmatrix}
+}
+
+\begin{document}
+
+\maketitle
+
+\section{LSTM}
+\subsection{}
+Based on this \href{http://mathline.unwir.ac.id/index.php/Mathline/article/download/475/265}{article} the models with LSTM and GRU
+methods have the same accuracy results in sentiment analysis but LSTM is slightly
+superior in precision, recall and F1-score. From both models, it can be concluded that both
+are superior in analyzing negative sentiments.
+
+However, it should also be considered that GRU is more efficient, and in this particular situation, we can 
+overlook this minor superiority and opt for GRU instead.
+
+\subsection{}
+No, LSTM and GRU are not parallelizable very well. They actually have an O(T) serial component, 
+where T is the length of the sequence. As a result, GPUs cannot make significant progress on these models.
+Instead, we should choose a more parallelizable alternative, which is the Transformer architecture.
+
+\subsection{}
+\begin{align*}
+    c^{<t>} &= c^{<t-1>} * \sigma(W_f \cat{a^{<t-1>}}{x^{<t>}} + b_f) 
+            + tanh(W_c \cat{a^{<t-1>}}{x^{<t>}} + b_c) * \sigma(W_u \cat{a^{<t-1>}}{x^{<t>}} + b_u) \\
+    a^{<t>} &= tanh(c^{<t>}) * \sigma(W_o \cat{a^{<t-1>}}{x^{<t>}} + b_o) \\
+    \hat{y}^{<t>} &= softmax (W_y (tanh(C^{<t>}) * \sigma(W_o \cat{a^{<t-1>}}{x^{<t>}} + b_o)) + b_y) \\
+\end{align*}
+
+\subsection{}
+\begin{align*}
+    &\pdv{L^{<t>}}{a^{<t>}} = \pdv{L^{<t>}}{z^{<t>}}\pdv{z^{<t>}}{a^{<t>}} = (\hat{y}^{<t>} - y^{<t>})^T W_y^T \\
+    &\pdv{L}{a^{<t>}} = \pdv{L^{<t>}}{a^{<t>}} + da_{next} = (\hat{y}^{<t>} - y^{<t>})^T W_y^T +  da_{next} \\
+    &\mathbf{\pdv{L}{W_y}} = \pdv{L^{<t>}}{W_y} = \pdv{L^{<t>}}{z^{<t>}} \pdv{z^{<t>}}{W_y} = (\hat{y}^{<t>} - y^{<t>})a^{<t>T} \qquad \qquad \qquad \qquad \qquad\\
+    &\mathbf{\pdv{L}{b_y}} = \pdv{L^{<t>}}{b_y} = \pdv{L^{<t>}}{z^{<t>}}\pdv{z^{<t>}}{b_y} = (\hat{y}^{<t>} - y^{<t>}) \\
+\end{align*}
+\begin{align*}    
+    &\pdv{L}{\Gamma_o^{<t>}} = \pdv{L}{a^{<t>}}\pdv{a^{<t>}}{\Gamma_o^{<t>}} = \pdv{L}{a^{<t>}} * tanh(c^{<t>}) \\
+    &\pdv{L}(\gamma_o^{<t>}) = \pdv{L}{\Gamma_o^{<t>}} \pdv{\Gamma_o^{<t>}}{\gamma_o^{<t>}} = \pdv{L}{\Gamma_o^{<t>}} * \Gamma_o^{<t>} * (1 - \Gamma_o^{<t>}) \\
+    &\mathbf{\pdv{L}{W_o}} = \pdv{L}{\gamma_o^{<t>}}\pdv{\gamma_o^{<t>}}{W_o} = \pdv{L}{\gamma_o^{<t>}} \cat{a^{<t-1>}}{x^{<t>}}^T \\
+    &\mathbf{\pdv{L}{b_o}} = \pdv{L}{\gamma_o^{<t>}}\pdv{\gamma_o^{<t>}}{b_o} = \pdv{L}{\gamma_o^{<t>}} \\
+    \\
+    &\pdv{L}{c^{<t>}} = \pdv{L}{a^{<t>}}\pdv{a^{<t>}}{c^{<t>}} + dc_{next} = \pdv{L}{a^{<t>}} * \Gamma_o^{<t>} * (1 - tanh^2(c^{<t>})) + dc_{next} \\
+    &\pdv{L}{\hat{c}^{<t>}} = \pdv{L}{c^{<t>}}\pdv{c^{<t>}}{\hat{c}^{<t>}} = \pdv{L}{c^{<t>}} * \Gamma_u^{<t>} \\
+    &\pdv{L}{p\hat{c}^{<t>}} = \pdv{L}{\hat{c}^{<t>}} \pdv{\hat{c}^{<t>}}{p\hat{c}^{<t>}} = \pdv{L}{\hat{c}^{<t>}} * (1 - p\hat{c}^{<t>2}) \\
+    &\mathbf{\pdv{L}{W_c}} = \pdv{L}{p\hat{c}^{<t>}}\pdv{p\hat{c}^{<t>}}{W_c} = \pdv{L}{p\hat{c}^{<t>}} \cat{a^{<t-1>}}{x^{<t>}}^T \\
+    &\mathbf{\pdv{L}{b_c}} = \pdv{L}{p\hat{c}^{<t>}} \\
+    \\
+    &\pdv{L}{\Gamma_u^{<t>}} = \pdv{L}{c^{<t>}}\pdv{c^{<t>}}{\Gamma_u^{<t>}} = \pdv{L}{c^{<t>}} * \hat{c}^{<t>} \\
+    &\pdv{L}{\gamma_u^{<t>}} = \pdv{L}{\Gamma_u^{<t>}}\pdv{\Gamma_u^{<t>}}{\gamma_u^{<t>}} = \pdv{L}{\Gamma_u^{<t>}} * \Gamma_u^{<t>} * (1 - \Gamma_u^{<t>}) \\
+    &\mathbf{\pdv{L}{W_u}} = \pdv{L}{\gamma_u^{<t>}}\pdv{\gamma_u^{<t>}}{W_u} = \pdv{L}{\gamma_u^{<t>}}\cat{a^{<t-1>}}{x^{<t>}}^T \\
+    &\mathbf{\pdv{L}{b_u}} = \pdv{L}{\gamma_u^{<t>}} \\
+    \\
+    &\pdv{L}{\Gamma_f^{<t>}} = \pdv{L}{c^{<t>}}\pdv{c^{<t>}}{\Gamma_f^{<t>}} = \pdv{L}{c^{<t>}} * c^{<t-1>} \\
+    &\pdv{L}{\gamma_f^{<t>}} = \pdv{L}{\Gamma_f^{<t>}}\pdv{\Gamma_f^{<t>}}{\gamma_f^{<t>}} = \pdv{L}{\Gamma_f^{<t>}} * \Gamma_f^{<t>} * (1 - \Gamma_f^{<t>}) \\
+    &\mathbf{\pdv{L}{W_f}} = \pdv{L}{\gamma_f^{<t>}}\pdv{\gamma^{<t>}}{W_f} = \pdv{L}{\gamma_f^{<t>}}\cat{a^{<t-1>}}{x^{<t>}}^T \\
+    &\mathbf{\pdv{L}{b_f}} = \pdv{L}{\gamma_f^{<t>}} 
+\end{align*}
+\newpage
+\section{Transformer Parameters}
+\subsection{}
+Let's define all hyper-parameters:
+\begin{align*}
+    &\text{vocab\_size} = 30000 \\
+    &\text{n\_encoder} = 12 \\
+    &\text{n\_decoder} = 8 \\
+    &d = 1024 \\
+    &T = 2048 \\
+    &d_h = 768 \\
+    &d_{ff} = 512 \\
+    &B = 32 \\
+    &h = 4 \\
+\end{align*}
+Dimention of all signals:
+\begin{align*}
+    &\text{Source, target: } B \times T \times \text{vocab\_size} \\
+    &\text{others: } B \times T \times d
+\end{align*}
+
+
+\subsection{}
+\begin{align*}
+    &\text{Embeding: } \text{vocab\_size} \times d  = 30,720,000\\
+    &\text{Multi\_head: } d \times \frac{d_h}{h} \times 3 \times h + d_h \times 3 + d_h \times d + d = 3,149,056\\
+    &\text{Norm: } 2 \times d = 2048\\
+    &\text{FFN: } 2 \times d \times d{ff} + d + d_{ff} = 1,050,112\\
+\end{align*}
+\begin{align*}
+    \text{\# params} 
+    &= \text{n\_encoder} \times (\text{Multi\_head} + 2 \text{Norm} + \text{FFN}) \\
+    &+ \text{n\_decoder} \times (2\text{Multi\_head} + 3\text{Norm} + \text{FFN}) \\
+    &+ \text{Embeding} \\
+    &= 50,439,168 + 58,834,944 + 30,720,000 \\
+    &= 139,994,112
+\end{align*}
+
+
+\section{Self-Attention}
+\subsection{}
+\begin{align*}
+    &a_{nm} = \frac{exp(x_n^Tx_m)}{\sum_{m'=1}^N x_n^Tx_{m'}} = 
+    \begin{cases}
+        \frac{0}{\sum_{m'=1}^N x_n^Tx_{m'}} = 0 &n \neq m\\ \\
+        \frac{exp(x_n^Tx_m)}{exp(x_n^Tx_m)} = 1 &n = m \\
+    \end{cases} \\
+    &\Rightarrow y_n = \sum_{m=1}^Na_{nm}x_m = x_n
+\end{align*}
+
+
+\subsection{}
+\begin{align*}
+    \mathbb{E}[(a^Tb)^2]
+    &= \mathbb{E}[(a^Tb)(a^Tb)] \\
+    &= \mathbb{E}[(a_1b_1 + \dots + a_db_d)(a_1b_1 + \dots + a_db_d)] \\
+    &= \mathbb{E}[\sum_{i=1}^D\sum_{j=1}^Da_ib_ia_jb_j] \\ 
+    &= \sum_{i=1}^D\sum_{j=1}^D\mathbb{E}[a_ib_ia_jb_j] \\
+    &= \sum_{i=1}^D\sum_{j=1}^D\mathbb{E}[a_ia_j]\mathbb{E}[b_ib_j] \\
+    &= \sum_{i=1}^D\sum_{j=1, j\neq i}^D\mathbb{E}[a_ia_j]\mathbb{E}[b_ib_j] 
+    + \sum_{i=1}^D \mathbb{E}[a_i^2]\mathbb{E}[b_i^2] \\
+    &= 0 + D(1) = D
+\end{align*}
+
+
+\subsection{}
+\begin{align*}
+    Y(X) 
+    &= [H_1, \dots, H_H] W^{(o)} \\
+    &= [H_1, \dots, H_H] 
+    \begin{bmatrix}
+        W_1^{(0)} \\
+        \vdots \\
+        W_H^{(o)}
+    \end{bmatrix} \\
+    &= \sum_{h=1}^H H_hW_h^{(o)} \\
+    &= \sum_{h=1}^H softmax[\frac{Q_hK_h^T}{\sqrt{D_{k_h}}}]V_hW_h^{(o)} \\
+    &= \sum_{h=1}^H softmax[\frac{Q_hK_h^T}{\sqrt{D_{k_h}}}]X\underbrace{W_h^{(v)}W_h^{(o)}}_{W^{(h)}} \\
+    &= \sum_{h=1}^H softmax[\frac{Q_hK_h^T}{\sqrt{D_{k_h}}}]XW^{(h)} \\
+\end{align*}
+
+
+
+\section{Rotary and ALiBi PE}
+\subsection{}
+Learned approaches can optimize position encoding, while unlearned PE cannot. 
+and this feature makes the learned PE more powerful.
+on the other hand, we have absolute 
+and relative PE, the first one is not robust; for example, adding an adverb to the beginning 
+of a sentence can change the result of the model while the meaning is the same as before. relative PE solves 
+this problem and for calculating PE only use the relative distances between tokens.
+\\
+
+\textbf{Disadvantages:}
+\begin{enumerate}
+    \item 
+    Learned: Extra memory and computation
+    \item
+    Unlearned: Inductive bias that may not be proper for our task
+    \item 
+    Absolute: Unrobust to little changes in the absolute position of words, discard the fact that relative position is important in natural languages
+    \item 
+    Relative: Computationally inefficient. During inference, researchers like to use a method called KV cache which helps to reduce the inference speed.
+    but in this method the embeddings for each token change for each new time step.
+\end{enumerate}
+
+
+\subsection{}
+Rotary PE is a relatively unlearned PE. So we talk about the disadvantages of these categories.
+while it is a relative PE but does not Decrease the inference speed, because this method finds a solution
+to multiply each token by a constant that results in attention is only dependent on relative distance.
+so PE added at first only one time, not for calculating the attention of each token. The second improvment 
+about inductive bias will be explained in next subsection.
+
+
+\subsection{}
+We can interpret the length of the vector as the embedding of the word and its angle as the embedding of position.
+In this way make this information vertical to each other.
+
+
+\subsection{}
+Suppose the dimension of word embeddings is 4.
+\begin{align*}
+    &\textbf{Tokens:}\\ 
+    &\text{"sharif"} &&\text{"university"} &&\text{"of"} &&\text{"technology"}\\
+    &\textbf{Embeding:}\\ 
+    &\begin{bmatrix}
+        s_1 \\
+        s_2 \\
+        s_3 \\
+        s_4 \\
+    \end{bmatrix}
+    &&\begin{bmatrix}
+        u_1 \\
+        u_2 \\
+        u_3 \\
+        u_4 \\
+    \end{bmatrix}
+    &&\begin{bmatrix}
+        o_1 \\
+        o_2 \\
+        o_3 \\
+        o_4 \\
+    \end{bmatrix}
+    &&
+    \begin{bmatrix}
+        t_1 \\
+        t_2 \\
+        t_3 \\
+        t_4 \\
+    \end{bmatrix} \\
+    &\textbf{Sinusoidal:} \\
+    &\begin{bmatrix}
+        s_1 + sin(\theta_1)\\
+        s_2 + cos(\theta_1)\\
+        s_3 + sin(\theta_2)\\
+        s_4 + cos(\theta_2)\\
+    \end{bmatrix}
+    &&\begin{bmatrix}
+        u_1 + sin(2\theta_1)\\
+        u_2 + cos(2\theta_1)\\
+        u_3 + sin(2\theta_2)\\
+        u_4 + cos(2\theta_2)\\
+    \end{bmatrix}
+    &&\begin{bmatrix}
+        o_1 + sin(3\theta_1)\\
+        o_2 + cos(3\theta_1)\\
+        o_3 + sin(3\theta_2)\\
+        o_4 + cos(3\theta_2)\\
+    \end{bmatrix}
+    &&\begin{bmatrix}
+        t_1 + sin(4\theta_1)\\
+        t_2 + cos(4\theta_1)\\
+        t_3 + sin(4\theta_2)\\
+        t_4 + cos(4\theta_2)\\
+    \end{bmatrix} \\
+    &\textbf{Rotary:} \\
+    &\begin{bmatrix}
+        s_1 cos(\theta_1) - s_2 sin(\theta_1) \\
+        s_1 sin(\theta_1) + s_2 cos(\theta_1) \\
+        s_3 cos(\theta_2) - s_4 sin(\theta_2) \\
+        s_3 sin(\theta_2) + s_4 cos(\theta_2) \\
+    \end{bmatrix}
+    &&\begin{bmatrix}
+        u_1 cos(2\theta_1) - u_2 sin(2\theta_1) \\
+        u_1 sin(2\theta_1) + u_2 cos(2\theta_1) \\
+        u_3 cos(2\theta_2) - u_4 sin(2\theta_2) \\
+        u_3 sin(2\theta_2) + u_4 cos(2\theta_2) \\
+    \end{bmatrix}
+    &&\begin{bmatrix}
+        o_1 cos(3\theta_1) - o_2 sin(3\theta_1) \\
+        o_1 sin(3\theta_1) + o_2 cos(3\theta_1) \\
+        o_3 cos(3\theta_2) - o_4 sin(3\theta_2) \\
+        o_3 sin(3\theta_2) + o_4 cos(3\theta_2) \\
+    \end{bmatrix}
+    &&\begin{bmatrix}
+        t_1 cos(4\theta_1) - t_2 sin(4\theta_1) \\
+        t_1 sin(4\theta_1) + t_2 cos(4\theta_1) \\
+        t_3 cos(4\theta_2) - t_4 sin(4\theta_2) \\
+        t_3 sin(4\theta_2) + t_4 cos(4\theta_2) \\
+    \end{bmatrix} \\
+\end{align*}
+
+In Sinusoidal PE each value of word embedding will be added by a sin/cos 
+part, but  in Rotary they will be multiplied by each and
+combine to make new elements of embedding vectors.
+
+
+\subsection{}
+The position embedding will be incorporated into the attention matrix.
+Additionally, the value of the biases is related to the relative position
+of the tokens. This is because, as evident in the bias matrix, the 
+values decrease as the distance from the diagonal of the matrix 
+increases. Furthermore, the diagonal of the matrix is zero, 
+representing the distance of each element from itself.
+
+Scalar m is a head-specific slope fixed before training.
+More accuratly, ALiBi penalizes attention scores between distant query-key
+pairs, with the penalty increasing as the distance between a key and a query grows. The different
+heads increase their penalties at different rates, depending on the slope magnitude.
+
+
+\section{}
+
+\subsection{}
+Following an example makes the proof easier:
+\begin{align*}
+    \frac{Q K^T}{\sqrt{D_k}} &= \frac{1}{\sqrt{D_k}} XW_qW_k^TX^T=XAX^T \\
+    &= 
+    \begin{bmatrix}
+        x_{11} & x_{12} \\
+        x_{21} & x_{22} \\
+    \end{bmatrix}
+    \begin{bmatrix}
+        a & b \\
+        c & d \\
+    \end{bmatrix}
+    \begin{bmatrix}
+        x_{11} & x_{21} \\
+        x_{12} & x_{22} \\
+    \end{bmatrix} \\
+\end{align*}
+\begin{align*}    
+    = 
+    \begin{bmatrix}
+        ax_{11}x_{11} + bx_{12}x_{11} + cx_{11}x_{12} + dx_{12}x_{12} &
+        ax_{21}x_{11} + bx_{12}x_{21} + cx_{21}x_{12} + dx_{22}x_{12} \\
+        ax_{11}x_{21} + bx_{12}x_{21} + cx_{11}x_{21} + dx_{12}x_{22} &
+        ax_{21}x_{21} + bx_{22}x_{21} + cx_{21}x_{22} + dx_{22}x_{22} \\
+    \end{bmatrix}
+\end{align*}
+\begin{align*}
+    =
+    \begin{bmatrix}
+        x_{11}x_{11} & x_{11}x_{12} & x_{11}x_{21} & x_{11}x_{22} \\
+        x_{12}x_{11} & x_{12}x_{12} & x_{12}x_{21} & x_{12}x_{22} \\
+        x_{21}x_{11} & x_{21}x_{12} & x_{21}x_{21} & x_{21}x_{22} \\
+        x_{22}x_{11} & x_{22}x_{12} & x_{22}x_{21} & x_{22}x_{22} \\
+    \end{bmatrix}
+    M_{ND,ND,N,N}
+\end{align*}
+
+
+\subsection{}
+The $M$ matrix ,as can be seen, has $O(N^4D^2)$ parameters
+
+
+\subsection{}
+\begin{align*}
+    &M_{:,:,1, 1} = 
+    \begin{bmatrix}
+        a & b & 0 & 0\\
+        c & d & 0 & 0\\
+        0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0\\
+    \end{bmatrix}
+    &M_{:,:,1, 2} = 
+    \begin{bmatrix}
+        0 & 0 & a & b\\
+        0 & 0 & c & d\\
+        0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0\\
+    \end{bmatrix} \\
+    &M_{:,:,2, 1} = 
+    \begin{bmatrix}
+        0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0\\
+        a & b & 0 & 0\\
+        c & d & 0 & 0\\
+    \end{bmatrix} 
+    &M_{:,:,2, 2} = 
+    \begin{bmatrix}
+        0 & 0 & 0 & 0\\
+        0 & 0 & 0 & 0\\
+        0 & 0 & a & b\\
+        0 & 0 & c & d\\
+    \end{bmatrix}
+\end{align*}
+
+
+
+\subsection{}
+The attention process involves multiplying matrices and adding values 
+based on those multiplications.
+Permuting the input will also permute the added values in the same way, 
+resulting in the same final output, since adding is equivarient.
+\end{document}
+

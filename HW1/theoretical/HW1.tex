@@ -94,7 +94,7 @@ something like weight sharing.
 
     \item 
     \begin{equation*}
-        \pdv{J}{\hat{y}^{(i)}} = -\frac{1}{m}\sum_{i=1}^{m} (\frac{y^{(i)}}{\hat{y}^{(i)}}
+        \pdv{J}{\hat{y}^{(i)}} = -\frac{1}{m} (\frac{y^{(i)}}{\hat{y}^{(i)}}
         - \frac{1 - y^{(i)}}{1 - \hat{y}^{(i)}}) = \delta_1
     \end{equation*}
 
@@ -105,17 +105,17 @@ something like weight sharing.
 
     \item 
     \begin{equation*}
-        \pdv{z_2}{a_1} = W_2 = \delta_3
+        \pdv{z_2}{a_1} = W_2^T = \delta_3
     \end{equation*}
 
     \item 
     \begin{equation*}
         \pdv{a_1}{z_1} = 
         \begin{bmatrix}
-           I(z_11 > 0) & 0 & \dots & 0 \\
-           0     & I(z_12 > 0) & \dots & 0 \\
+           I(z_{11} > 0) & 0 & \dots & 0 \\
+           0     & I(z_{12} > 0) & \dots & 0 \\
            0 & 0 & \ddots  & 0 \\
-           0    & 0  &  \dots & I(z_1,D_{a1} > 0)
+           0    & 0  &  \dots & I(z_{1,D_{a1}} > 0)
         \end{bmatrix}
         = \delta_4
     \end{equation*}

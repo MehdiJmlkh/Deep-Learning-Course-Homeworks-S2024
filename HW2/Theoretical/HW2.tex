@@ -125,7 +125,7 @@ filters, while Gaussian dropout results in spatial redundancy.
 
 \section{Backpropagation of CNN}
 \begin{align*}
-    \pdv{L}{W_j} = \sum_{i = 0}^{N - K + 1} \pdv{L}{Z_i} X_{i + j}
+    \pdv{L}{W_j} = \sum_{i = 0}^{N - j - 1} \pdv{L}{Z_i} X_{i + j}
 \end{align*}
 This is the same as the convolution formula presented in formula 8, so we can 
 derive the following formula:

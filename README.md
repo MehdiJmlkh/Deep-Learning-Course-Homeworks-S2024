@@ -2,7 +2,7 @@
 
 This repository contains the completed homework assignments for the Deep Learning course at SUT, instructed by Dr. Soleymani.
 
---- 
+
 ### HW1: Deep Learning Basics
 - **Optimization Methods**: 
 This notebook explores several optimization methods commonly employed in deep learning tasks and assesses their effectiveness using two test functions.
@@ -13,7 +13,7 @@ In this notebook, we will implement fully connected networks using a modular app
 - **Pytorch Basics**:
 This notebook will walk you through many of the important features of PyTorch.
 
----
+
 ### HW2: Convolutional Neural Networks
 - **Vanilla CNN**: 
 In this notebook, we will learn about CNN's basics by working on a problem of great importance in computer vision: classifying images of cats and dogs :).

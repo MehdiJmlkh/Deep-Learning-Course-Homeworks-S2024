@@ -22,4 +22,4 @@ In this notebook, to learn about CNNs basics we will be working on a problem of 
 In this notebook, we will implement the `ResNet18` and `U-Net` using PyTorch, and use them for image classification and colorization on the CIFAR10 dataset.
 
 - **YOLO**:
-In this notebook, you will implement the YOLO object detection algorithm using PyTorch. YOLO is a real-time object detection system that can recognize multiple objects in an image while also predicting their bounding boxes.
+In this notebook, we will implement the YOLO object detection algorithm using PyTorch. YOLO is a real-time object detection system that can recognize multiple objects in an image while also predicting their bounding boxes.

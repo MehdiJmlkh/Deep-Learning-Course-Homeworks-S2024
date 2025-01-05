@@ -14,7 +14,7 @@ In this notebook we will implement fully-connected networks using a modular appr
 This notebook will walk you through many of the important features of PyTorch.
 
 
-### HW2: Convolutional Neural Network
+### HW2: Convolutional Neural Networks
 - **Vanilla CNN**: 
 In this notebook, to learn about CNNs basics we will be working on a problem of great importance in computer vision, classifying images of cats and dogs :).
 

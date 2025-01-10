@@ -29,4 +29,8 @@ In this notebook, we will implement the YOLO object detection algorithm using Py
 - **RNN**:
 In this notebook, we will implement both a vanilla RNN and an LSTM using PyTorch. Additionally, we will develop a sentiment analysis model by simply adding a linear layer to the hidden vector of an LSTM.
 
+- **Simple GPT**:
+The objective of this notebook is to create and train a decoder-only model, which is a custom and scaled-down version of GPT, using a dataset consisting of dialogues from the TV series Friends.
+
+
 To be completed ...

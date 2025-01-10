@@ -35,4 +35,7 @@ The objective of this notebook is to create and train a decoder-only model, whic
 - **MLM and Sequence Classification with BERT**:
 In this notebook, we use the "rotten_tomatoes" dataset from `HuggingFace`, which contains movie reviews, to perform two tasks: Masked Language Modeling (MLM) and building a classifier to differentiate between positive and negative reviews. We utilize a smaller, customized version of BERT to ensure efficient and feasible training.
 
+- **iTransformer**:
+In this notebook, we implement both the inverted Transfromer (iTransformer) and the standard Transformer using PyTorch and compare their performance in time series forecasting.
+
 To be completed ...

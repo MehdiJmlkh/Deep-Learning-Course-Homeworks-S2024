@@ -32,5 +32,7 @@ In this notebook, we will implement both a vanilla RNN and an LSTM using PyTorch
 - **Simple GPT**:
 The objective of this notebook is to create and train a decoder-only model, which is a custom and scaled-down version of GPT, using a dataset consisting of dialogues from the TV series Friends.
 
+- **MLM and Sequence Classification with BERT**:
+In this notebook, we use the "rotten_tomatoes" dataset from `HuggingFace`, which contains movie reviews, to perform two tasks: Masked Language Modeling (MLM) and building a classifier to differentiate between positive and negative reviews. We utilize a smaller, customized version of BERT to ensure efficient and feasible training.
 
 To be completed ...

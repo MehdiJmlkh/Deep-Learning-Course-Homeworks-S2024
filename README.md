@@ -25,4 +25,8 @@ In this notebook, we will implement the `ResNet18` and `U-Net` using PyTorch, an
 In this notebook, we will implement the YOLO object detection algorithm using PyTorch. YOLO is a real-time object detection system that can recognize multiple objects in an image while also predicting their bounding boxes.
 
 
+### HW3: RNNs & Transformers
+- **RNN**:
+In this notebook, we will implement both a vanilla RNN and an LSTM using PyTorch. Additionally, we will develop a sentiment analysis model by simply adding a linear layer to the hidden vector of an LSTM.
+
 To be completed ...

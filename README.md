@@ -44,5 +44,7 @@ In this notebook, we implement both the inverted Transfromer (iTransformer) and 
 In this notebook, we are going to implement Variational AutoEncoder (VAE) and Generative Adversarial Network (GAN) on the MNIST dataset. VAEs learn a latent variable model from input data. They sample from this distribution and decode it to generate new data. GANs uses a generator to make images based on a prior distribution.
 
 
+- **Denoising Diffusion Probabilistic Models (DDPMs)**:
+In this notebook, we will implement both a Denoising Diffusion Probabilistic Model (DDPM) and a Conditional DDPM. For more details, please refer to the original [DDPM paper](https://arxiv.org/pdf/2006.11239.pdf).
 
 To be completed ...

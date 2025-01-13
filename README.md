@@ -38,4 +38,11 @@ In this notebook, we use the "rotten_tomatoes" dataset from `HuggingFace`, which
 - **iTransformer**:
 In this notebook, we implement both the inverted Transfromer (iTransformer) and the standard Transformer using PyTorch and compare their performance in time series forecasting.
 
+
+### HW4: Generative Models
+- **GAN and VAE**:
+In this notebook, we are going to implement Variational AutoEncoder (VAE) and Generative Adversarial Network (GAN) on the MNIST dataset. VAEs learn a latent variable model from input data. They sample from this distribution and decode it to generate new data. GANs uses a generator to make images based on a prior distribution.
+
+
+
 To be completed ...

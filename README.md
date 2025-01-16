@@ -52,4 +52,8 @@ In this notebook, we will implement both a Denoising Diffusion Probabilistic Mod
 - **DINO**:
 In this assignment, we will use the self-supervised DINO model to extract visual features from satellite imagery. These features will be used to train a classifier to predict the presence of solar panels in the images. Additionally, we will analyze the transformer's attention maps from the DINO model to estimate the size of the solar panels in positive examples.
 
+- **Stable Diffusion**:
+This notebook consists of three parts: implementing the stable diffusion pipeline with classifier-free guidance, enhancing blue color in the generated images, and fine-tuning the model using the [DreamBooth](https://dreambooth.github.io/) technique for personalized image generation based on paired tokens and images.
+
+
 To be completed ...

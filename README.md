@@ -47,4 +47,9 @@ In this notebook, we are going to implement Variational AutoEncoder (VAE) and Ge
 - **Denoising Diffusion Probabilistic Models (DDPMs)**:
 In this notebook, we will implement both a Denoising Diffusion Probabilistic Model (DDPM) and a Conditional DDPM. For more details, please refer to the original [DDPM paper](https://arxiv.org/pdf/2006.11239.pdf).
 
+
+### HW5: 
+- **DINO**:
+In this assignment, we will use the self-supervised DINO model to extract visual features from satellite imagery. These features will be used to train a classifier to predict the presence of solar panels in the images. Additionally, we will analyze the transformer's attention maps from the DINO model to estimate the size of the solar panels in positive examples.
+
 To be completed ...

@@ -55,5 +55,7 @@ In this assignment, we will use the self-supervised DINO model to extract visual
 - **Stable Diffusion**:
 This notebook consists of three parts: implementing the stable diffusion pipeline with classifier-free guidance, enhancing blue color in the generated images, and fine-tuning the model using the [DreamBooth](https://dreambooth.github.io/) technique for personalized image generation based on paired tokens and images.
 
+- **Adversarial Attacks and Training**:
+This notebook explores adversarial attacks and training in deep learning. It covers training a ResNet18 model on the CIFAR-10 dataset, implementing FGSM and PGD attacks, generating adversarial examples, and conducting adversarial training. Finally, it compares the performance and robustness of the adversarially trained model with the original model.
 
 To be completed ...

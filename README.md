@@ -3,6 +3,17 @@
 This repository contains the completed homework assignments for the Deep Learning course at SUT, instructed by Dr. Soleymani.
 
 
+**Notes**:
+- Each homework consists of both theoretical and practical parts.
+    My solutions to the theoretical questions are available in the `theoretical` directory, formatted in LaTeX.
+
+- Most notebooks are designed to run on both CPU and GPU:
+    - **GPU-Only Sections**: Computationally intensive tasks are wrapped in conditions to run only when a GPU is available.
+    - **CPU Execution**: If running on a CPU, the notebooks will attempt to load pretrained weights saved from a previous GPU run.
+    - **Pretrained Weights**:
+    At the beginning of the notebooks, there is a link to download the pretrained weights that I have saved.
+
+
 ### HW1: Deep Learning Basics
 - **Optimization Methods**: 
 This notebook explores several optimization methods commonly employed in deep learning tasks and assesses their effectiveness using two test functions.
@@ -57,5 +68,3 @@ This notebook consists of three parts: implementing the stable diffusion pipelin
 
 - **Adversarial Attacks and Training**:
 This notebook explores adversarial attacks and training in deep learning. It covers training a ResNet18 model on the CIFAR-10 dataset, implementing FGSM and PGD attacks, generating adversarial examples, and conducting adversarial training. Finally, it compares the performance and robustness of the adversarially trained model with the original model.
-
-To be completed ...

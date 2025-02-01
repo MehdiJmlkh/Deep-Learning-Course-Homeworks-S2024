@@ -14,7 +14,7 @@ This repository contains the completed homework assignments for the Deep Learnin
     At the beginning of the notebooks, there is a link to download the pretrained weights that I have saved.
 
 
-### HW1: Deep Learning Basics
+## HW1: Deep Learning Basics
 - **Optimization Methods**: 
 This notebook explores several optimization methods commonly employed in deep learning tasks and assesses their effectiveness using two test functions.
 
@@ -25,7 +25,7 @@ In this notebook, we will implement fully connected networks using a modular app
 This notebook will walk you through many of the important features of PyTorch.
 
 
-### HW2: Convolutional Neural Networks
+## HW2: Convolutional Neural Networks
 - **Vanilla CNN**: 
 In this notebook, we will learn about CNN's basics by working on a problem of great importance in computer vision: classifying images of cats and dogs :).
 
@@ -36,7 +36,7 @@ In this notebook, we will implement the `ResNet18` and `U-Net` using PyTorch, an
 In this notebook, we will implement the YOLO object detection algorithm using PyTorch. YOLO is a real-time object detection system that can recognize multiple objects in an image while also predicting their bounding boxes.
 
 
-### HW3: RNNs & Transformers
+## HW3: RNNs & Transformers
 - **RNN**:
 In this notebook, we will implement both a vanilla RNN and an LSTM using PyTorch. Additionally, we will develop a sentiment analysis model by simply adding a linear layer to the hidden vector of an LSTM.
 
@@ -50,7 +50,7 @@ In this notebook, we use the "rotten_tomatoes" dataset from `HuggingFace`, which
 In this notebook, we implement both the inverted Transfromer (iTransformer) and the standard Transformer using PyTorch and compare their performance in time series forecasting.
 
 
-### HW4: Generative Models
+## HW4: Generative Models
 - **GAN and VAE**:
 In this notebook, we are going to implement Variational AutoEncoder (VAE) and Generative Adversarial Network (GAN) on the MNIST dataset. VAEs learn a latent variable model from input data. They sample from this distribution and decode it to generate new data. GANs uses a generator to make images based on a prior distribution.
 
@@ -59,7 +59,7 @@ In this notebook, we are going to implement Variational AutoEncoder (VAE) and Ge
 In this notebook, we will implement both a Denoising Diffusion Probabilistic Model (DDPM) and a Conditional DDPM. For more details, please refer to the original [DDPM paper](https://arxiv.org/pdf/2006.11239.pdf).
 
 
-### HW5: More Recent Models and Topics
+## HW5: More Recent Models and Topics
 - **DINO**:
 In this assignment, we will use the self-supervised DINO model to extract visual features from satellite imagery. These features will be used to train a classifier to predict the presence of solar panels in the images. Additionally, we will analyze the transformer's attention maps from the DINO model to estimate the size of the solar panels in positive examples.
 
